@@ -2,13 +2,10 @@
 <html class="dark" lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Unsent • Confessional</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>The Words Left Unsent</title>
 
-  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-  <!-- Google fonts & Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" crossorigin href="https://fonts.gstatic.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet"/>
@@ -24,10 +21,11 @@
             "background-light": "#f6f6f8",
             "background-dark": "#101022",
           },
-          fontFamily: { display: ["Plus Jakarta Sans", "sans-serif"] },
-          borderRadius: { DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px" }
-        }
-      }
+          fontFamily: {
+            display: ["Plus Jakarta Sans", "sans-serif"]
+          }
+        },
+      },
     }
   </script>
 
@@ -45,60 +43,62 @@
   </style>
 </head>
 
-<body class="font-display">
-  <div class="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden">
-    <div class="absolute inset-0 z-0 gradient-bg"></div>
+<body class="font-display bg-background-dark text-white">
 
-    <div class="relative z-10 flex h-full grow flex-col">
-      <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center items-center py-10">
-        <div class="flex flex-col max-w-[720px] w-full">
+<!-- Background Animation -->
+<div class="absolute inset-0 gradient-bg z-0"></div>
 
-          <h1 class="text-white tracking-tight text-4xl md:text-5xl font-bold leading-tight px-4 text-center pb-3 pt-6">
-            The Words Left Unsent
-          </h1>
+<!-- MAIN WRAPPER -->
+<div class="relative z-10 flex flex-col items-center min-h-screen px-4 sm:px-6 pt-20">
 
-          <p class="text-[#b4b4d6] text-lg font-normal leading-normal pb-8 pt-1 px-4 text-center">
-            An anonymous and private journal for the feelings you can't say out loud.
-          </p>
+  <!-- Logo -->
+  <div class="mb-6 flex items-center justify-center">
+    <svg class="h-10 w-10 text-primary" viewBox="0 0 48 48" fill="none">
+      <path d="M42.17 20.17L27.83 5.83C29.14 7.14 28.4 10.19 26.2 13.77C24.85 15.96 22.96 18.34 20.65 20.65C18.34 22.96 15.96 24.85 13.77 26.2C10.19 28.4 7.14 29.14 5.83 27.83L20.17 42.17C21.48 43.48 24.53 42.75 28.11 40.55C30.3 39.2 32.69 37.31 35 35C37.31 32.69 39.2 30.3 40.55 28.11C42.75 24.53 43.48 21.48 42.17 20.17Z" fill="currentColor"/>
+    </svg>
+  </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-            <div class="flex gap-3 rounded-xl border border-[#3b3b54]/50 bg-[#1c1c2e]/60 p-4 flex-col backdrop-blur-sm">
-              <span class="material-symbols-outlined text-white" style="font-size: 24px;">visibility_off</span>
-              <div class="flex flex-col gap-1">
-                <h2 class="text-white text-base font-bold leading-tight">Whisper Anonymously</h2>
-                <p class="text-[#9d9db9] text-sm">No names, no profiles. Just your true, unfiltered thoughts.</p>
-              </div>
-            </div>
+  <!-- HEADLINE -->
+  <h1 class="text-3xl sm:text-5xl font-bold leading-tight text-center px-2">
+    The Words Left Unsent
+  </h1>
 
-            <div class="flex gap-3 rounded-xl border border-[#3b3b54]/50 bg-[#1c1c2e]/60 p-4 flex-col backdrop-blur-sm">
-              <span class="material-symbols-outlined text-white" style="font-size: 24px;">favorite</span>
-              <div class="flex flex-col gap-1">
-                <h2 class="text-white text-base font-bold leading-tight">Express Your True Feelings</h2>
-                <p class="text-[#9d9db9] text-sm">A safe place to explore and release your innermost feelings.</p>
-              </div>
-            </div>
-          </div>
+  <!-- SUBTEXT (Mobile Optimized Intro) -->
+  <p class="mt-4 text-slate-300 text-sm sm:text-lg text-center max-w-[40ch]">
+    To you who keeps everything inside — here’s a quiet space to write what you never said.  
+    No names. No judgement. Just a whisper.
+  </p>
 
-          <div class="w-full max-w-sm mx-auto">
-            <div class="flex px-4 py-3 pt-8">
-              <button id="cta-open" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center rounded-xl h-12 px-5 flex-1 bg-primary text-white text-base font-bold tracking-[0.015em] hover:opacity-95 transition-all duration-300">
-                <span class="truncate">Whisper Your First Thought</span>
-              </button>
-            </div>
-
-            <p class="text-[#9d9db9] text-sm font-normal leading-normal pb-3 pt-1 px-4 text-center">Your words are for your eyes only.</p>
-          </div>
-
-        </div>
-      </div>
+  <!-- FEATURES -->
+  <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-lg">
+    <div class="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur">
+      <span class="material-symbols-outlined text-white text-2xl">visibility_off</span>
+      <p class="mt-2 text-sm text-slate-300">Whisper anonymously</p>
+    </div>
+    <div class="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur">
+      <span class="material-symbols-outlined text-white text-2xl">favorite</span>
+      <p class="mt-2 text-sm text-slate-300">Express what hurts</p>
+    </div>
+    <div class="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur">
+      <span class="material-symbols-outlined text-white text-2xl">auto_stories</span>
+      <p class="mt-2 text-sm text-slate-300">Read others’ whispers</p>
     </div>
   </div>
 
-  <script>
-    // CTA: navigate to Whispers page
-    document.getElementById('cta-open')?.addEventListener('click', () => {
-      window.location.href = 'whispers.html';
-    });
-  </script>
+  <!-- CTA BUTTON -->
+  <button id="start-btn"
+    class="mt-10 w-full max-w-xs bg-primary text-white font-bold py-3 rounded-xl shadow-lg hover:bg-primary/90 transition">
+    Start Whispering
+  </button>
+
+</div>
+
+<!-- BUTTON LOGIC -->
+<script>
+  document.getElementById("start-btn").addEventListener("click", function() {
+    window.location.href = "whispers.html";
+  });
+</script>
+
 </body>
 </html>
