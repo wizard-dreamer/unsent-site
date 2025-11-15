@@ -1,38 +1,71 @@
-﻿# thewordsleftunsent
+# thewordsleftunsent
 
-A small, anonymous confessional web app — whisper what you can’t say aloud. Mobile-first UI, simple Firestore integration (with localStorage fallback), and ready to deploy to Vercel.
+A minimal, anonymous confessional web app — a place to whisper what you can’t say aloud.
 
-Quick links
+Mobile-first. Lightweight. Firestore-ready. Perfect for quick deployment on Vercel.
 
-Live (example): https://thewordsleftunsent.vercel.app/
+🔗 Quick Links
 
-Project folder: unsent/
+Live Demo: https://thewordsleftunsent.vercel.app/
 
-Files to look at: index.html, whispers.html, compose.html, detail.html, assets/
+Project Folder: unsent/
 
-What this project does
+Key Files: index.html, whispers.html, compose.html, detail.html, assets/
 
-Let users write anonymous “whispers” (short confessions).
+💡 What This Project Does
 
-Show a public feed of whispers (reads Firestore realtime if configured; otherwise local-only).
+A simple platform where users can share short, anonymous “whispers.”
+The app supports both Firestore real-time sync and a localStorage-only fallback so it works seamlessly whether online or offline.
 
-Compose page with recipient, mood, anonymity, preview, and Ctrl/Cmd+Enter submit.
+Users can:
 
-Detail page with like and local delete functionality.
+Post confessions anonymously or with a recipient.
 
-Mobile-first design (Tailwind CSS), lightweight, no build step required for the static UI.
+Browse a live feed of whispers.
 
-Features
+Open detail pages with like & local delete options.
 
-Mobile-optimized hero, feed, compose, and detail screens.
+Search whispers by text or recipient.
 
-Realtime Firestore listener for live updates (optional).
+Enjoy a smooth, mobile-first experience.
 
-LocalStorage fallback for development/testing without a backend.
+✨ Features
+📱 Mobile-First UI
 
-Client-side search (recipient/text).
+Designed with Tailwind CSS for a clean, modern experience that feels great on phones.
 
-Friendly UX: large tap targets, previews, autosize textareas, keyboard shortcuts.
+🔥 Optional Firestore Integration
 
+Realtime listeners
 
+Auto-update feed
 
+Works instantly if Firestore keys are provided
+
+💾 LocalStorage Fallback
+
+Ideal for testing without any backend setup.
+
+📝 Compose Experience
+
+Recipient, mood, and anonymity toggle
+
+Autosizing textareas
+
+Live preview
+
+Shortcut: Ctrl/Cmd + Enter to post
+
+🔍 Smart Client-Side Search
+
+Find whispers by recipient or text instantly.
+
+❤️ Detail Page Tools
+
+Like button
+
+Delete (local only)
+
+⚡ No Build Step
+
+Entire UI is static—just drop the folder into Vercel and deploy.
