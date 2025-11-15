@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Whispers - Unsent • Confessional</title>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&family=Lora:ital,wght@0,400..700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+<script>
+  tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary:"#1313ec","background-dark":"#101022" }, fontFamily:{ display:["Plus Jakarta Sans","sans-serif"], serif:["Lora","serif"] } } } };
+</script>
+
+<style>
+  body { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  .masonry-grid { column-count:2; column-gap:1.5rem; }
+  @media (min-width:768px){ .masonry-grid{ column-count:3 } }
+  @media (min-width:1200px){ .masonry-grid{ column-count:4 } }
+  .masonry-grid > div { break-inside:avoid; margin-bottom:1.5rem; }
+  .new-whisper-highlight { animation: newWhisperGlow 1200ms cubic-bezier(.2,.9,.2,1) both; outline:2px solid rgba(43,109,232,0.14); position:relative; z-index:5; }
+  @keyframes newWhisperGlow { 0%{ transform:translateY(0) scale(1); } 40%{ transform:translateY(-10px) scale(1.02);} 100%{ transform:translateY(0) scale(1);} }
+</style>
+</head>
+
+<body class="bg-background-dark font-display text-gray-200">
+  <div class="min-h-screen px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-3xl font-bold">Whispers</h1>
+        <p class="text-sm text-gray-400">Hear what others left unsent.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <input id="search" class="rounded-md px-3 py-2 bg-white/4 placeholder:text-gray-300" placeholder="Search recipient or text..." />
+        <button id="btn-new" class="rounded-full bg-primary px-4 py-2 text-white">Write</button>
+      </div>
+    </header>
+
+    <main>
+      <div id="masonry" class="masonry-grid"></div>
+    </main>
+  </div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ====== PASTE YOUR FIREBASE CONFIG HERE ====== */
+const firebaseConfig = {apiKey: "AIzaSyB-28iKKBChtAulr91LtBULeY3qCSfLoDk",
+  authDomain: "the-words-left-unsent.firebaseapp.com",
+  projectId: "the-words-left-unsent",
+  storageBucket: "the-words-left-unsent.firebasestorage.app",
+  messagingSenderId: "924610897130",
+  appId: "1:924610897130:web:a940973a3e27caba1f6393",
+  measurementId: "G-VK8QTYGSEE"
+ 
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const coll = db.collection('whispers');
+
+const searchEl = document.getElementById('search');
+const masonry = document.getElementById('masonry');
+const newBtn = document.getElementById('btn-new');
+
+newBtn.addEventListener('click', () => { window.location.href = 'compose.html'; });
+
+// helper
+function escapeHtml(unsafe) {
+  return (unsafe || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+function timeLabel(ts) {
+  if (!ts) return '';
+  try {
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleString();
+  } catch(e){ return ''; }
+}
+
+/* realtime listener: order by createdAt desc (fallback to id if missing) */
+let unsubscribe = null;
+
+function renderList(list, lastAddedId) {
+  masonry.innerHTML = '';
+  list.forEach(doc => {
+    const p = doc.data();
+    const id = doc.id;
+    const card = document.createElement('div');
+    card.className = `group relative flex cursor-pointer flex-col overflow-hidden rounded-lg bg-white/4 p-5 shadow-lg transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl`;
+    card.setAttribute('data-id', id);
+    const dateLabel = p.dateLabel || timeLabel(p.createdAt);
+    const icon = escapeHtml(p.icon || 'note');
+    const recipient = escapeHtml(p.recipient || '—');
+    const text = escapeHtml(p.text || '');
+
+    card.innerHTML = `
+      <div class="relative z-10 flex flex-col gap-4">
+        <div class="flex items-start justify-between">
+          <span class="material-symbols-outlined text-yellow-300">${icon}</span>
+          <p class="text-xs text-gray-400">${escapeHtml(dateLabel)}</p>
+        </div>
+        <p class="font-serif text-base leading-relaxed text-gray-200">${text.length>300?text.slice(0,300)+'…':text}</p>
+        <div class="flex items-center gap-2 text-red-400">
+          <span class="material-symbols-outlined text-base">favorite</span>
+          <span class="text-sm font-bold">${p.likes||0}</span>
+        </div>
+        <div class="mt-2 text-xs text-gray-400">To: ${recipient}</div>
+      </div>
+    `;
+
+    card.addEventListener('click', () => { window.location.href = `detail.html?id=${encodeURIComponent(id)}`; });
+
+    masonry.appendChild(card);
+
+    // highlight new
+    if (lastAddedId && String(id) === String(lastAddedId)) {
+      requestAnimationFrame(() => {
+        card.classList.add('new-whisper-highlight');
+        setTimeout(() => {
+          try { localStorage.removeItem('unsent_last_added'); } catch(e){}
+          card.classList.remove('new-whisper-highlight');
+        }, 1400);
+      });
+    }
+  });
+}
+
+/* Subscribe to Firestore collection, order newest first.
+   For scale/production you should paginate and/or limit, but for small sites this is fine.
+*/
+function startRealtimeListener() {
+  // always order by createdAt desc. if createdAt missing Firestore will sort docs without timestamp last.
+  unsubscribe = coll.orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+    const lastAdded = (() => { try { return localStorage.getItem('unsent_last_added'); } catch(e) { return null; } })();
+
+    // transform into array of docs, allow filtering by search term
+    let docs = [];
+    snapshot.forEach(doc => docs.push(doc));
+    // apply client-side search filter
+    const q = (searchEl.value || '').trim().toLowerCase();
+    if (q) {
+      docs = docs.filter(d => {
+        const p = d.data();
+        const rec = (p.recipient||'').toString().toLowerCase();
+        const txt = (p.text||'').toString().toLowerCase();
+        return rec.includes(q) || txt.includes(q);
+      });
+    }
+    renderList(docs, lastAdded);
+  }, err => {
+    console.error('Realtime listener error', err);
+    // fallback: you could show cached posts or demo content
+  });
+}
+
+/* search input: debounce and restart render (we keep realtime but filter client-side) */
+let searchTimer = null;
+searchEl.addEventListener('input', () => {
+  if (searchTimer) clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    // restart listener render: we already filter on snapshot event, but force re-render
+    // easiest: just re-fetch latest snapshot by temporarily unsubscribing & resubscribing
+    if (unsubscribe) unsubscribe();
+    startRealtimeListener();
+  }, 250);
+});
+
+// start
+startRealtimeListener();
+</script>
+</body>
+</html>

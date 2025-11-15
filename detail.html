@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unsent Confessional — Detail</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: { primary: "#1313ec", "background-light":"#f6f6f8","background-dark":"#101022" },
+          fontFamily: { display:["Plus Jakarta Sans","Noto Sans","sans-serif"], mono:["IBM Plex Mono","monospace"] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display">
+  <div class="relative flex min-h-screen w-full flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+    <!-- Confession Card -->
+    <div id="confession-card" class="relative flex w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-gradient-to-br from-[#19192c] via-[#101022] to-[#14142d] text-white shadow-2xl shadow-black/30">
+      <!-- Toolbar -->
+      <div class="flex items-center justify-between gap-2 px-4 py-3 sm:px-6">
+        <button id="btn-back" class="flex items-center justify-center rounded-full p-2 text-white/80 hover:bg-white/10" title="Back">
+          <span class="material-symbols-outlined text-2xl">arrow_back</span>
+        </button>
+
+        <div class="flex gap-2">
+          <button id="btn-like" class="flex items-center justify-center rounded-full p-2 text-white/80 hover:bg-white/10" title="Like">
+            <span id="like-icon" class="material-symbols-outlined text-2xl">favorite_border</span>
+          </button>
+          <button id="btn-delete" class="flex items-center justify-center rounded-full p-2 text-white/80 hover:bg-white/10" title="Delete">
+            <span class="material-symbols-outlined text-2xl">delete</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="flex flex-1 flex-col p-4 pt-0 sm:p-6 sm:pt-0">
+        <!-- Mood row -->
+        <div id="mood-row" class="flex items-center gap-4 border-b border-white/10 py-4">
+          <div id="mood-icon" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-300">
+            <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 48">note</span>
+          </div>
+          <div class="flex flex-col">
+            <p id="mood-title" class="text-base font-medium leading-normal text-white/90">For a Heavy Heart</p>
+            <p id="mood-sub" class="text-sm font-normal leading-normal text-white/50">Ephemeral</p>
+          </div>
+        </div>
+
+        <!-- Main text -->
+        <div class="flex-1 py-6">
+          <h1 id="recipient" class="font-mono text-[22px] font-normal leading-tight tracking-tight text-white/90">To: —</h1>
+          <p id="body-text" class="mt-4 font-mono text-base font-normal leading-relaxed text-white/70"></p>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex items-center gap-4 border-t border-white/10 py-4">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/5 text-white/60">
+            <span class="material-symbols-outlined text-2xl">lock</span>
+          </div>
+          <p id="anon-text" class="flex-1 truncate text-base font-normal leading-normal text-white/90">Sent Anonymously</p>
+          <div class="shrink-0">
+            <p id="date-text" class="text-sm font-normal leading-normal text-white/50">—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const KEY = 'unsent_posts_v1';
+
+  function qs(name) {
+    const params = new URLSearchParams(location.search);
+    return params.get(name);
+  }
+
+  function loadPosts() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function savePosts(posts) {
+    try { localStorage.setItem(KEY, JSON.stringify(posts)); } catch (e) {}
+  }
+
+  function formatDateLabel(post) {
+    if (post.dateLabel) return post.dateLabel;
+    if (post.date) {
+      try { return new Date(post.date).toLocaleString(); } catch (e) {}
+    }
+    return '';
+  }
+
+  (function initDetail() {
+    const id = qs('id');
+    const posts = loadPosts();
+    const post = posts.find(p => String(p.id) === String(id));
+
+    const backBtn = document.getElementById('btn-back');
+    const likeBtn = document.getElementById('btn-like');
+    const deleteBtn = document.getElementById('btn-delete');
+    const likeIcon = document.getElementById('like-icon');
+
+    if (!post) {
+      document.getElementById('recipient').textContent = 'Whisper not found';
+      document.getElementById('body-text').textContent = 'This whisper could not be found. It may have been deleted or the link is incorrect.';
+      document.getElementById('mood-title').textContent = '';
+      document.getElementById('mood-sub').textContent = '';
+      document.getElementById('anon-text').textContent = '';
+      document.getElementById('date-text').textContent = '';
+      backBtn.addEventListener('click', () => history.back());
+      deleteBtn.style.display = 'none';
+      likeBtn.style.display = 'none';
+      return;
+    }
+
+    // populate UI
+    document.getElementById('recipient').textContent = post.recipient ? `To: ${post.recipient}` : 'To: —';
+    document.getElementById('body-text').textContent = post.text || '';
+    document.getElementById('mood-title').textContent = (post.mood || '').replace(/^[a-z]/, s => s.toUpperCase()) || 'Mood';
+    document.getElementById('mood-sub').textContent = post.ephemeral ? 'Ephemeral' : (post.dateLabel || '');
+    document.getElementById('date-text').textContent = formatDateLabel(post);
+    document.getElementById('anon-text').textContent = post.anonymous ? 'Sent Anonymously' : (post.name ? `Sent by ${post.name}` : 'Sent');
+
+    // mood icon
+    const moodIconEl = document.querySelector('#mood-icon .material-symbols-outlined');
+    if (post.icon && moodIconEl) moodIconEl.textContent = post.icon;
+
+    // like UI
+    function refreshLikeUI() {
+      if (post.likes && post.likes > 0) {
+        likeIcon.textContent = 'favorite';
+        likeIcon.style.color = '#ff7b9c';
+      } else {
+        likeIcon.textContent = 'favorite_border';
+        likeIcon.style.color = '';
+      }
+    }
+    refreshLikeUI();
+
+    // back
+    backBtn.addEventListener('click', () => history.back());
+
+    // like action
+    likeBtn.addEventListener('click', () => {
+      const postsNow = loadPosts();
+      const idx = postsNow.findIndex(p => String(p.id) === String(post.id));
+      if (idx === -1) return;
+      postsNow[idx].likes = (postsNow[idx].likes || 0) + 1;
+      post.likes = postsNow[idx].likes;
+      savePosts(postsNow);
+      refreshLikeUI();
+      likeIcon.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 360 });
+    });
+
+    // delete action
+    deleteBtn.addEventListener('click', () => {
+      if (!confirm('Delete this whisper? This action cannot be undone.')) return;
+      const remaining = loadPosts().filter(p => String(p.id) !== String(post.id));
+      savePosts(remaining);
+      try {
+        const last = localStorage.getItem('unsent_last_added');
+        if (last && String(last) === String(post.id)) localStorage.removeItem('unsent_last_added');
+      } catch (e) {}
+      window.location.href = 'whispers.html';
+    });
+  })();
+</script>
+</body>
+</html>

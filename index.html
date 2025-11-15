@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unsent • Confessional</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Google fonts & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" crossorigin href="https://fonts.gstatic.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1313ec",
+            "background-light": "#f6f6f8",
+            "background-dark": "#101022",
+          },
+          fontFamily: { display: ["Plus Jakarta Sans", "sans-serif"] },
+          borderRadius: { DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .gradient-bg {
+      background: radial-gradient(circle at 30% 70%, #1313ec20, #101022 40%),
+                  radial-gradient(circle at 70% 30%, #4a00e020, #101022 40%);
+      animation: gradient-pulse 10s ease-in-out infinite;
+    }
+    @keyframes gradient-pulse {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+  </style>
+</head>
+
+<body class="font-display">
+  <div class="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden">
+    <div class="absolute inset-0 z-0 gradient-bg"></div>
+
+    <div class="relative z-10 flex h-full grow flex-col">
+      <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center items-center py-10">
+        <div class="flex flex-col max-w-[720px] w-full">
+
+          <h1 class="text-white tracking-tight text-4xl md:text-5xl font-bold leading-tight px-4 text-center pb-3 pt-6">
+            The Words Left Unsent
+          </h1>
+
+          <p class="text-[#b4b4d6] text-lg font-normal leading-normal pb-8 pt-1 px-4 text-center">
+            An anonymous and private journal for the feelings you can't say out loud.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+            <div class="flex gap-3 rounded-xl border border-[#3b3b54]/50 bg-[#1c1c2e]/60 p-4 flex-col backdrop-blur-sm">
+              <span class="material-symbols-outlined text-white" style="font-size: 24px;">visibility_off</span>
+              <div class="flex flex-col gap-1">
+                <h2 class="text-white text-base font-bold leading-tight">Whisper Anonymously</h2>
+                <p class="text-[#9d9db9] text-sm">No names, no profiles. Just your true, unfiltered thoughts.</p>
+              </div>
+            </div>
+
+            <div class="flex gap-3 rounded-xl border border-[#3b3b54]/50 bg-[#1c1c2e]/60 p-4 flex-col backdrop-blur-sm">
+              <span class="material-symbols-outlined text-white" style="font-size: 24px;">favorite</span>
+              <div class="flex flex-col gap-1">
+                <h2 class="text-white text-base font-bold leading-tight">Express Your True Feelings</h2>
+                <p class="text-[#9d9db9] text-sm">A safe place to explore and release your innermost feelings.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full max-w-sm mx-auto">
+            <div class="flex px-4 py-3 pt-8">
+              <button id="cta-open" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center rounded-xl h-12 px-5 flex-1 bg-primary text-white text-base font-bold tracking-[0.015em] hover:opacity-95 transition-all duration-300">
+                <span class="truncate">Whisper Your First Thought</span>
+              </button>
+            </div>
+
+            <p class="text-[#9d9db9] text-sm font-normal leading-normal pb-3 pt-1 px-4 text-center">Your words are for your eyes only.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // CTA: navigate to Whispers page
+    document.getElementById('cta-open')?.addEventListener('click', () => {
+      window.location.href = 'whispers.html';
+    });
+  </script>
+</body>
+</html>

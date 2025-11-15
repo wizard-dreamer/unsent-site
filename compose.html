@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Compose - Unsent • Confessional</title>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: { colors: { primary: "#6B8EAD", "background-dark": "#0f1220" }, fontFamily: { display: ["Plus Jakarta Sans","sans-serif"], typewriter: ["Special Elite","monospace"] } }
+    }
+  }
+</script>
+
+<style>
+  body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  .compose-textarea { font-family: 'Special Elite', monospace; font-size:18px; line-height:1.6; background-color: rgba(13,18,32,0.55); color:#dbe6f6; border:1px solid rgba(255,255,255,0.04); padding:28px; border-radius:12px; min-height:380px; max-height:60vh; resize:vertical; }
+  .recipient-btn, .mood-label { transition: all .15s ease; }
+  .recipient-btn.active { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.06); }
+  .mood-label.active { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); border-color: var(--mood-accent,#6B8EAD); }
+  .page-wrap { max-width: 1024px; margin: 0 auto; width: 100%; }
+</style>
+</head>
+
+<body class="font-display bg-background-dark text-slate-200">
+  <div class="min-h-screen flex items-start justify-center py-12 px-4 sm:py-16">
+    <div class="page-wrap w-full">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold">Unsent • Confessional</h1>
+        <p class="text-sm text-slate-400 mt-2">What's on your mind?</p>
+      </div>
+
+      <div class="mx-auto bg-[rgba(8,10,20,0.6)] border border-white/6 rounded-2xl p-6 shadow-2xl" style="max-width:900px;">
+        <textarea id="txt-body" class="compose-textarea w-full placeholder:text-slate-400" placeholder="Let your thoughts flow here..." rows="10"></textarea>
+
+        <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div class="space-y-6">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-300 mb-2">Recipient</h3>
+              <div class="flex gap-2 flex-wrap">
+                <button type="button" data-recipient="To myself" class="recipient-btn rounded-md border px-3 py-2 text-sm border-white/6">To myself</button>
+                <button type="button" data-recipient="A lost friend" class="recipient-btn rounded-md border px-3 py-2 text-sm border-white/6">A lost friend</button>
+                <button type="button" data-recipient="The void" class="recipient-btn rounded-md border px-3 py-2 text-sm border-white/6">The void</button>
+              </div>
+              <input id="custom-recipient" class="mt-3 w-full rounded-md border px-3 py-2 text-sm bg-transparent border-white/6" placeholder="Or type a custom recipient" />
+            </div>
+
+            <div>
+              <h3 class="text-sm font-semibold text-slate-300 mb-2">Anonymity</h3>
+              <label class="flex items-center gap-3 cursor-pointer select-none">
+                <input id="chk-anon" type="checkbox" checked class="h-4 w-4" />
+                <span class="text-sm text-slate-300">Remain anonymous</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div>
+              <h3 class="text-sm font-semibold text-slate-300 mb-2">Mood</h3>
+              <div class="grid grid-cols-4 gap-3">
+                <label class="mood-label flex cursor-pointer flex-col items-center gap-1 rounded-md border border-white/6 p-3 text-sm" data-mood="hope" style="--mood-accent:#FFD166">
+                  <input name="mood" value="hope" type="radio" class="sr-only" />
+                  <span class="material-symbols-outlined text-2xl">sentiment_very_satisfied</span>
+                  <span>Hope</span>
+                </label>
+
+                <label class="mood-label active flex cursor-pointer flex-col items-center gap-1 rounded-md border border-primary p-3 text-sm" data-mood="melancholy" style="--mood-accent:#6B8EAD">
+                  <input name="mood" value="melancholy" type="radio" checked class="sr-only" />
+                  <span class="material-symbols-outlined text-2xl">sentiment_sad</span>
+                  <span>Melancholy</span>
+                </label>
+
+                <label class="mood-label flex cursor-pointer flex-col items-center gap-1 rounded-md border border-white/6 p-3 text-sm" data-mood="anger" style="--mood-accent:#EF476F">
+                  <input name="mood" value="anger" type="radio" class="sr-only" />
+                  <span class="material-symbols-outlined text-2xl">sentiment_frustrated</span>
+                  <span>Anger</span>
+                </label>
+
+                <label class="mood-label flex cursor-pointer flex-col items-center gap-1 rounded-md border border-white/6 p-3 text-sm" data-mood="love" style="--mood-accent:#FFB4C0">
+                  <input name="mood" value="love" type="radio" class="sr-only" />
+                  <span class="material-symbols-outlined text-2xl">favorite</span>
+                  <span>Love</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-semibold text-slate-300 mb-2">Preview</h3>
+              <div id="preview" class="min-h-[80px] rounded-md border border-white/6 p-3 text-sm text-slate-200 font-serif bg-[rgba(255,255,255,0.02)]"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-between gap-4">
+          <button id="btn-cancel" class="rounded-md border border-white/6 px-4 py-2 text-sm">Cancel</button>
+          <div class="flex items-center gap-3">
+            <button id="btn-save" class="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow">Whisper</button>
+          </div>
+        </div>
+
+        <p class="mt-4 text-xs text-slate-500 flex items-center gap-2"><span class="material-symbols-outlined text-xs">lock</span> Posts will be published publicly for visitors to read.</p>
+      </div>
+    </div>
+  </div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ====== PASTE YOUR FIREBASE CONFIG HERE ======
+   Replace the object below with the config from the Firebase console:
+   const firebaseConfig = { apiKey: "...", authDomain: "...", projectId: "...", ... }
+*/
+const firebaseConfig = {
+  apiKey: "AIzaSyB-28iKKBChtAulr91LtBULeY3qCSfLoDk",
+  authDomain: "the-words-left-unsent.firebaseapp.com",
+  projectId: "the-words-left-unsent",
+  storageBucket: "the-words-left-unsent.firebasestorage.app",
+  messagingSenderId: "924610897130",
+  appId: "1:924610897130:web:a940973a3e27caba1f6393",
+  measurementId: "G-VK8QTYGSEE"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const collection = db.collection('whispers');
+
+/* UI wiring */
+const txtBody = document.getElementById('txt-body');
+const recipientBtns = Array.from(document.querySelectorAll('.recipient-btn'));
+const customRecipient = document.getElementById('custom-recipient');
+const chkAnon = document.getElementById('chk-anon');
+const moodLabels = Array.from(document.querySelectorAll('.mood-label'));
+const moodRadios = Array.from(document.querySelectorAll('input[name="mood"]'));
+const preview = document.getElementById('preview');
+const btnSave = document.getElementById('btn-save');
+const btnCancel = document.getElementById('btn-cancel');
+
+recipientBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    recipientBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    customRecipient.value = btn.dataset.recipient || btn.textContent.trim();
+  });
+  if (!btn.dataset.recipient && btn.getAttribute('data-recipient')) btn.dataset.recipient = btn.getAttribute('data-recipient');
+});
+
+moodLabels.forEach(lbl => {
+  lbl.addEventListener('click', () => {
+    moodLabels.forEach(l => l.classList.remove('active'));
+    lbl.classList.add('active');
+    const val = lbl.dataset.mood;
+    const radio = moodRadios.find(r => r.value === val);
+    if (radio) radio.checked = true;
+  });
+});
+
+function updatePreview() {
+  const txt = txtBody.value.trim();
+  preview.textContent = txt.length ? (txt.length > 800 ? txt.slice(0,800) + '…' : txt) : 'Your whisper preview...';
+}
+txtBody.addEventListener('input', updatePreview);
+updatePreview();
+
+btnCancel.addEventListener('click', () => window.location.href = 'whispers.html');
+
+btnSave.addEventListener('click', async () => {
+  const body = txtBody.value.trim();
+  if (!body) { alert('Please write something before whispering.'); txtBody.focus(); return; }
+
+  let recipient = customRecipient.value.trim();
+  if (!recipient) {
+    const activeBtn = recipientBtns.find(b => b.classList.contains('active'));
+    recipient = activeBtn ? (activeBtn.dataset.recipient || activeBtn.textContent.trim()) : '—';
+  }
+
+  const moodInput = moodRadios.find(i => i.checked);
+  const mood = moodInput ? moodInput.value : 'melancholy';
+  const anonymous = chkAnon.checked;
+
+  // prepare doc
+  const doc = {
+    recipient,
+    text: body,
+    mood,
+    likes: 0,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    icon: mood === 'hope' ? 'celebration' : (mood === 'melancholy' ? 'rainy' : (mood === 'anger' ? 'bolt' : (mood === 'love' ? 'favorite' : 'note'))),
+    anonymous: anonymous === true,
+    // senderName: null // we don't collect name by default
+  };
+
+  try {
+    const res = await collection.add(doc);
+    // mark last added id locally (for highlight)
+    try { localStorage.setItem('unsent_last_added', String(res.id)); } catch (e) {}
+    // redirect
+    window.location.href = 'whispers.html';
+  } catch (err) {
+    console.error('Firestore write failed', err);
+    alert('Could not post. Try again later.');
+  }
+});
+
+// Ctrl/Cmd + Enter to submit
+txtBody.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    btnSave.click();
+  }
+});
+</script>
+</body>
+</html>
