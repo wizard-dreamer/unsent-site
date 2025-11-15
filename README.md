@@ -4,7 +4,7 @@ A small, anonymous confessional web app — whisper what you can’t say aloud. 
 
 Quick links
 
-Live (example): https://your-vercel-url.vercel.app
+Live (example): https://thewordsleftunsent.vercel.app/
 
 Project folder: unsent/
 
@@ -33,3 +33,4 @@ LocalStorage fallback for development/testing without a backend.
 Client-side search (recipient/text).
 
 Friendly UX: large tap targets, previews, autosize textareas, keyboard shortcuts.
+
