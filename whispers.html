@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Whispers - Unsent • Confessional</title>
+<title>Whispers - The Words Left Unsent</title>
 
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
@@ -13,166 +13,292 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
 
 <script>
-  tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary:"#1313ec","background-dark":"#101022" }, fontFamily:{ display:["Plus Jakarta Sans","sans-serif"], serif:["Lora","serif"] } } } };
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          primary: "#1313ec",
+          "background-dark": "#101022",
+        },
+        fontFamily: { display: ["Plus Jakarta Sans","sans-serif"], serif: ["Lora","serif"] }
+      }
+    }
+  };
 </script>
 
 <style>
+  :root{ --card-radius: 12px; --gap: 1rem; }
+  html,body { height:100%; }
   body { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-  .masonry-grid { column-count:2; column-gap:1.5rem; }
-  @media (min-width:768px){ .masonry-grid{ column-count:3 } }
-  @media (min-width:1200px){ .masonry-grid{ column-count:4 } }
-  .masonry-grid > div { break-inside:avoid; margin-bottom:1.5rem; }
-  .new-whisper-highlight { animation: newWhisperGlow 1200ms cubic-bezier(.2,.9,.2,1) both; outline:2px solid rgba(43,109,232,0.14); position:relative; z-index:5; }
-  @keyframes newWhisperGlow { 0%{ transform:translateY(0) scale(1); } 40%{ transform:translateY(-10px) scale(1.02);} 100%{ transform:translateY(0) scale(1);} }
+
+  /* muted helper */
+  .muted { color: #9aa0b4; }
+
+  /* Grid-based masonry for stability & accessibility */
+  .grid-masonry {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: var(--gap);
+  }
+  @media (min-width:640px) { .grid-masonry { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width:1024px) { .grid-masonry { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width:1400px) { .grid-masonry { grid-template-columns: repeat(4, 1fr); } }
+
+  .card {
+    border-radius: var(--card-radius);
+    padding: 1rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .card:active, .card:focus { transform: translateY(-2px); outline: none; }
+  .card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,0.45); }
+
+  .new-whisper-highlight {
+    animation: newWhisperGlow 1200ms cubic-bezier(.2,.9,.2,1) both;
+    outline: 2px solid rgba(43,109,232,0.14);
+    position: relative;
+    z-index: 5;
+  }
+  @keyframes newWhisperGlow {
+    0%{ transform: translateY(0) scale(1); }
+    40%{ transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(43,109,232,0.12); }
+    100%{ transform: translateY(0) scale(1); }
+  }
+
+  /* Floating compose button (thumb-friendly) */
+  .fab {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 60;
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    display: inline-grid;
+    place-items: center;
+    box-shadow: 0 10px 30px rgba(19,19,236,0.12);
+  }
 </style>
 </head>
 
-<body class="bg-background-dark font-display text-gray-200">
-  <div class="min-h-screen px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8">
-    <header class="flex items-center justify-between mb-6">
+<body class="bg-background-dark font-display text-gray-100 min-h-screen">
+
+  <div class="min-h-screen px-4 sm:px-8 md:px-16 lg:px-20 xl:px-28 py-6">
+
+    <!-- Header -->
+    <header class="flex items-start justify-between gap-4 mb-4">
       <div>
-        <h1 class="text-3xl font-bold">Whispers</h1>
-        <p class="text-sm text-gray-400">Hear what others left unsent.</p>
+        <h1 class="text-2xl sm:text-3xl font-bold">Whispers</h1>
+        <p class="text-sm muted">Hear what others left unsent.</p>
       </div>
-      <div class="flex items-center gap-3">
-        <input id="search" class="rounded-md px-3 py-2 bg-white/4 placeholder:text-gray-300" placeholder="Search recipient or text..." />
-        <button id="btn-new" class="rounded-full bg-primary px-4 py-2 text-white">Write</button>
+
+      <div class="flex items-center gap-3 w-full max-w-xs">
+        <label for="search" class="sr-only">Search whispers</label>
+        <input id="search" type="search" placeholder="Search recipient or text..."
+          class="w-full rounded-lg bg-white/4 px-3 py-2 text-sm placeholder:muted focus:outline-none focus:ring-2 focus:ring-primary/30" />
+        <button id="btn-new" aria-label="Write a new whisper"
+          class="rounded-full bg-primary px-3 py-2 text-sm font-semibold shadow hover:bg-primary/90 transition focus:outline-none">
+          Write
+        </button>
       </div>
     </header>
 
+    <!-- status / controls -->
+    <div id="status" class="mb-4 text-sm muted" role="status" aria-live="polite">Loading whispers…</div>
+
+    <!-- Grid -->
     <main>
-      <div id="masonry" class="masonry-grid"></div>
+      <div id="grid" class="grid-masonry"></div>
+
+      <!-- empty state -->
+      <div id="empty" class="mt-8 hidden text-center muted">
+        <p class="text-lg">No whispers yet.</p>
+        <p class="text-sm mt-2">Be the first — or try a different search.</p>
+      </div>
     </main>
+
   </div>
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- Floating compose button for mobile -->
+  <button id="fab" class="fab bg-primary text-white shadow-lg focus:outline-none" title="Write">
+    <span class="material-symbols-outlined">edit</span>
+  </button>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-/* ====== PASTE YOUR FIREBASE CONFIG HERE ====== */
-const firebaseConfig = {apiKey: "AIzaSyB-28iKKBChtAulr91LtBULeY3qCSfLoDk",
+/* -------------------------
+  Your Firebase config is preserved.
+------------------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyB-28iKKBChtAulr91LtBULeY3qCSfLoDk",
   authDomain: "the-words-left-unsent.firebaseapp.com",
   projectId: "the-words-left-unsent",
   storageBucket: "the-words-left-unsent.firebasestorage.app",
   messagingSenderId: "924610897130",
   appId: "1:924610897130:web:a940973a3e27caba1f6393",
   measurementId: "G-VK8QTYGSEE"
- 
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const coll = db.collection('whispers');
 
+/* UI refs */
+const gridEl = document.getElementById('grid');
+const statusEl = document.getElementById('status');
+const emptyEl = document.getElementById('empty');
 const searchEl = document.getElementById('search');
-const masonry = document.getElementById('masonry');
-const newBtn = document.getElementById('btn-new');
+const btnNew = document.getElementById('btn-new');
+const fab = document.getElementById('fab');
 
-newBtn.addEventListener('click', () => { window.location.href = 'compose.html'; });
+/* navigation wiring */
+btnNew.addEventListener('click', () => window.location.href = 'compose.html');
+fab.addEventListener('click', () => window.location.href = 'compose.html');
 
-// helper
+/* helpers */
 function escapeHtml(unsafe) {
-  return (unsafe || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  return (unsafe || '').toString()
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
 function timeLabel(ts) {
   if (!ts) return '';
   try {
     const d = ts.toDate ? ts.toDate() : new Date(ts);
     return d.toLocaleString();
-  } catch(e){ return ''; }
+  } catch (e) { return ''; }
 }
 
-/* realtime listener: order by createdAt desc (fallback to id if missing) */
+/* state */
+let allDocs = [];   // cached snapshot docs
 let unsubscribe = null;
+let isListening = false;
 
-function renderList(list, lastAddedId) {
-  masonry.innerHTML = '';
-  list.forEach(doc => {
+/* render */
+function renderList(docs, lastAddedId = null) {
+  gridEl.innerHTML = '';
+  if (!docs || docs.length === 0) {
+    emptyEl.classList.remove('hidden');
+    statusEl.textContent = 'No whispers found.';
+    return;
+  } else {
+    emptyEl.classList.add('hidden');
+    statusEl.textContent = `Showing ${docs.length} ${docs.length===1 ? 'whisper' : 'whispers'}.`;
+  }
+
+  const frag = document.createDocumentFragment();
+
+  docs.forEach(doc => {
     const p = doc.data();
     const id = doc.id;
-    const card = document.createElement('div');
-    card.className = `group relative flex cursor-pointer flex-col overflow-hidden rounded-lg bg-white/4 p-5 shadow-lg transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl`;
-    card.setAttribute('data-id', id);
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.setAttribute('role','article');
+    card.setAttribute('tabindex','0');
+    card.setAttribute('aria-label', `Whisper to ${p.recipient || 'someone'}`);
+
     const dateLabel = p.dateLabel || timeLabel(p.createdAt);
     const icon = escapeHtml(p.icon || 'note');
     const recipient = escapeHtml(p.recipient || '—');
     const text = escapeHtml(p.text || '');
 
     card.innerHTML = `
-      <div class="relative z-10 flex flex-col gap-4">
-        <div class="flex items-start justify-between">
-          <span class="material-symbols-outlined text-yellow-300">${icon}</span>
-          <p class="text-xs text-gray-400">${escapeHtml(dateLabel)}</p>
-        </div>
-        <p class="font-serif text-base leading-relaxed text-gray-200">${text.length>300?text.slice(0,300)+'…':text}</p>
+      <div class="flex items-start justify-between mb-3">
+        <span class="material-symbols-outlined text-primary" aria-hidden="true">${icon}</span>
+        <time class="text-xs muted" datetime="${p.createdAt ? (p.createdAt.toDate ? p.createdAt.toDate().toISOString() : new Date(p.createdAt).toISOString()) : ''}">${escapeHtml(dateLabel)}</time>
+      </div>
+      <p class="text-sm font-serif text-gray-100 mb-3">${text.length>300 ? text.slice(0,300) + '…' : text}</p>
+      <div class="flex items-center justify-between text-xs">
         <div class="flex items-center gap-2 text-red-400">
-          <span class="material-symbols-outlined text-base">favorite</span>
-          <span class="text-sm font-bold">${p.likes||0}</span>
+          <span class="material-symbols-outlined" aria-hidden="true">favorite</span>
+          <span class="font-semibold">${p.likes || 0}</span>
         </div>
-        <div class="mt-2 text-xs text-gray-400">To: ${recipient}</div>
+        <div class="text-xs muted">To: ${recipient}</div>
       </div>
     `;
 
-    card.addEventListener('click', () => { window.location.href = `detail.html?id=${encodeURIComponent(id)}`; });
+    card.addEventListener('click', () => window.location.href = `detail.html?id=${encodeURIComponent(id)}`);
+    // keyboard accessibility: Enter -> open detail
+    card.addEventListener('keydown', (e) => { if (e.key === 'Enter') window.location.href = `detail.html?id=${encodeURIComponent(id)}`; });
 
-    masonry.appendChild(card);
+    frag.appendChild(card);
 
     // highlight new
     if (lastAddedId && String(id) === String(lastAddedId)) {
       requestAnimationFrame(() => {
         card.classList.add('new-whisper-highlight');
         setTimeout(() => {
-          try { localStorage.removeItem('unsent_last_added'); } catch(e){}
+          try { localStorage.removeItem('unsent_last_added'); } catch (e) {}
           card.classList.remove('new-whisper-highlight');
-        }, 1400);
+        }, 1600);
       });
     }
   });
+
+  gridEl.appendChild(frag);
 }
 
-/* Subscribe to Firestore collection, order newest first.
-   For scale/production you should paginate and/or limit, but for small sites this is fine.
-*/
-function startRealtimeListener() {
-  // always order by createdAt desc. if createdAt missing Firestore will sort docs without timestamp last.
-  unsubscribe = coll.orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-    const lastAdded = (() => { try { return localStorage.getItem('unsent_last_added'); } catch(e) { return null; } })();
+/* filtering (client-side) */
+function filterAndRender(query) {
+  const q = (query || '').trim().toLowerCase();
+  const filtered = allDocs.filter(d => {
+    const p = d.data();
+    const rec = (p.recipient || '').toString().toLowerCase();
+    const txt = (p.text || '').toString().toLowerCase();
+    return !q || rec.includes(q) || txt.includes(q);
+  });
+  const lastAdded = (() => { try { return localStorage.getItem('unsent_last_added'); } catch(e) { return null; } })();
+  renderList(filtered, lastAdded);
+}
 
-    // transform into array of docs, allow filtering by search term
-    let docs = [];
-    snapshot.forEach(doc => docs.push(doc));
-    // apply client-side search filter
-    const q = (searchEl.value || '').trim().toLowerCase();
-    if (q) {
-      docs = docs.filter(d => {
-        const p = d.data();
-        const rec = (p.recipient||'').toString().toLowerCase();
-        const txt = (p.text||'').toString().toLowerCase();
-        return rec.includes(q) || txt.includes(q);
-      });
+/* debounce utility */
+function debounce(fn, wait=250){
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(()=> fn.apply(this, args), wait); };
+}
+
+/* start realtime listener once */
+function startRealtimeListener() {
+  if (isListening) return;
+  isListening = true;
+  statusEl.textContent = 'Connecting to database…';
+  unsubscribe = coll.orderBy('createdAt','desc').limit(200).onSnapshot(snapshot => {
+    allDocs = [];
+    snapshot.forEach(doc => allDocs.push(doc));
+    if (allDocs.length === 0) {
+      statusEl.textContent = 'No whispers yet.';
+      emptyEl.classList.remove('hidden');
+      gridEl.innerHTML = '';
+      return;
     }
-    renderList(docs, lastAdded);
+    statusEl.textContent = `Loaded ${allDocs.length} whispers.`;
+    filterAndRender(searchEl.value || '');
   }, err => {
     console.error('Realtime listener error', err);
-    // fallback: you could show cached posts or demo content
+    statusEl.textContent = 'Could not connect to database (check console).';
   });
 }
 
-/* search input: debounce and restart render (we keep realtime but filter client-side) */
-let searchTimer = null;
-searchEl.addEventListener('input', () => {
-  if (searchTimer) clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => {
-    // restart listener render: we already filter on snapshot event, but force re-render
-    // easiest: just re-fetch latest snapshot by temporarily unsubscribing & resubscribing
-    if (unsubscribe) unsubscribe();
-    startRealtimeListener();
-  }, 250);
+/* search wiring (debounced filter) */
+const onSearch = debounce((evt) => {
+  filterAndRender(evt.target.value);
+}, 200);
+searchEl.addEventListener('input', onSearch);
+
+/* init */
+startRealtimeListener();
+
+/* accessibility: clear search on Escape */
+searchEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { searchEl.value = ''; filterAndRender(''); }
 });
 
-// start
-startRealtimeListener();
 </script>
 </body>
 </html>

@@ -16,7 +16,7 @@
       darkMode: "class",
       theme: {
         extend: {
-          colors: { primary: "#1313ec", "background-light":"#f6f6f8","background-dark":"#101022" },
+          colors: { primary: "#1313ec", "background-dark":"#101022", "card":"rgba(255,255,255,0.04)" },
           fontFamily: { display:["Plus Jakarta Sans","Noto Sans","sans-serif"], mono:["IBM Plex Mono","monospace"] }
         }
       }
@@ -24,170 +24,315 @@
   </script>
 
   <style>
-    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .card-radius { border-radius: 14px; }
+    .muted { color: #9aa0b4; }
   </style>
 </head>
 
-<body class="bg-background-light dark:bg-background-dark font-display">
-  <div class="relative flex min-h-screen w-full flex-col items-center justify-center p-4 sm:p-6 md:p-8">
-    <!-- Confession Card -->
-    <div id="confession-card" class="relative flex w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-gradient-to-br from-[#19192c] via-[#101022] to-[#14142d] text-white shadow-2xl shadow-black/30">
+<body class="bg-background-dark font-display min-h-screen text-white">
+  <div class="min-h-screen flex items-center justify-center p-4 sm:p-8">
+    <article id="confession-card" class="w-full max-w-2xl card-radius bg-gradient-to-br from-[#19192c] via-[#101022] to-[#14142d] shadow-2xl p-4 sm:p-6">
       <!-- Toolbar -->
-      <div class="flex items-center justify-between gap-2 px-4 py-3 sm:px-6">
-        <button id="btn-back" class="flex items-center justify-center rounded-full p-2 text-white/80 hover:bg-white/10" title="Back">
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <button id="btn-back" class="flex items-center gap-2 rounded-full p-2 text-white/90 hover:bg-white/8 focus:outline-none" aria-label="Back to list">
           <span class="material-symbols-outlined text-2xl">arrow_back</span>
+          <span class="sr-only">Back</span>
         </button>
 
-        <div class="flex gap-2">
-          <button id="btn-like" class="flex items-center justify-center rounded-full p-2 text-white/80 hover:bg-white/10" title="Like">
+        <div class="flex items-center gap-2">
+          <button id="btn-like" class="flex items-center gap-2 rounded-lg px-3 py-2 bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.04)] focus:outline-none" aria-label="Like this whisper">
             <span id="like-icon" class="material-symbols-outlined text-2xl">favorite_border</span>
+            <span id="like-count" class="text-sm font-semibold">0</span>
           </button>
-          <button id="btn-delete" class="flex items-center justify-center rounded-full p-2 text-white/80 hover:bg-white/10" title="Delete">
+
+          <button id="btn-delete" class="flex items-center gap-2 rounded-lg px-3 py-2 bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.04)] focus:outline-none" aria-label="Delete whisper">
             <span class="material-symbols-outlined text-2xl">delete</span>
+            <span class="text-sm">Delete</span>
           </button>
         </div>
       </div>
 
-      <!-- Content -->
-      <div class="flex flex-1 flex-col p-4 pt-0 sm:p-6 sm:pt-0">
-        <!-- Mood row -->
-        <div id="mood-row" class="flex items-center gap-4 border-b border-white/10 py-4">
-          <div id="mood-icon" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-300">
-            <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 48">note</span>
-          </div>
-          <div class="flex flex-col">
-            <p id="mood-title" class="text-base font-medium leading-normal text-white/90">For a Heavy Heart</p>
-            <p id="mood-sub" class="text-sm font-normal leading-normal text-white/50">Ephemeral</p>
-          </div>
+      <!-- Mood row -->
+      <div id="mood-row" class="flex items-center gap-4 border-b border-white/8 pb-4 mb-4">
+        <div id="mood-icon" class="h-12 w-12 flex items-center justify-center rounded-lg bg-blue-500/10 text-blue-300">
+          <span class="material-symbols-outlined text-3xl" aria-hidden="true">note</span>
         </div>
-
-        <!-- Main text -->
-        <div class="flex-1 py-6">
-          <h1 id="recipient" class="font-mono text-[22px] font-normal leading-tight tracking-tight text-white/90">To: —</h1>
-          <p id="body-text" class="mt-4 font-mono text-base font-normal leading-relaxed text-white/70"></p>
-        </div>
-
-        <!-- Footer -->
-        <div class="flex items-center gap-4 border-t border-white/10 py-4">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/5 text-white/60">
-            <span class="material-symbols-outlined text-2xl">lock</span>
-          </div>
-          <p id="anon-text" class="flex-1 truncate text-base font-normal leading-normal text-white/90">Sent Anonymously</p>
-          <div class="shrink-0">
-            <p id="date-text" class="text-sm font-normal leading-normal text-white/50">—</p>
-          </div>
+        <div>
+          <p id="mood-title" class="text-base font-medium text-white/90">For a Heavy Heart</p>
+          <p id="mood-sub" class="text-sm muted">Ephemeral</p>
         </div>
       </div>
-    </div>
+
+      <!-- Main content -->
+      <div class="prose prose-invert max-w-none">
+        <h2 id="recipient" class="font-mono text-xl mb-2">To: —</h2>
+        <p id="body-text" class="text-base leading-relaxed text-white/80 mb-6"></p>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center gap-4 border-t border-white/8 pt-4">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-lg bg-white/5 flex items-center justify-center">
+            <span class="material-symbols-outlined">lock</span>
+          </div>
+          <div>
+            <div id="anon-text" class="text-sm text-white/90">Sent Anonymously</div>
+            <div id="date-text" class="text-xs muted"></div>
+          </div>
+        </div>
+        <div class="ml-auto text-sm muted" id="source-note"></div>
+      </div>
+    </article>
   </div>
 
+  <!-- Firebase SDK (optional) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
-  const KEY = 'unsent_posts_v1';
+/* ---------- CONFIG ---------- */
+/* Keep the same localStorage key used elsewhere */
+const LOCAL_KEY = 'unsent_posts_v1_local'; // matches compose/local fallback
+// Firebase config (if you already initialized on other pages you can omit or keep same)
+const firebaseConfig = {
+  apiKey: "AIzaSyB-28iKKBChtAulr91LtBULeY3qCSfLoDk",
+  authDomain: "the-words-left-unsent.firebaseapp.com",
+  projectId: "the-words-left-unsent",
+  storageBucket: "the-words-left-unsent.firebasestorage.app",
+  messagingSenderId: "924610897130",
+  appId: "1:924610897130:web:a940973a3e27caba1f6393",
+  measurementId: "G-VK8QTYGSEE"
+};
 
-  function qs(name) {
-    const params = new URLSearchParams(location.search);
-    return params.get(name);
+/* ---------- UTILS ---------- */
+function qs(name) { return new URLSearchParams(location.search).get(name); }
+function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function safeText(s){ return escapeHtml(s || ''); }
+function formatDateLabel(post){
+  if (!post) return '';
+  if (post.dateLabel) return post.dateLabel;
+  if (post.createdAt && post.createdAt.toDate) {
+    try { return post.createdAt.toDate().toLocaleString(); } catch(e) {}
   }
+  if (post.createdAt) {
+    try { return new Date(post.createdAt).toLocaleString(); } catch(e) {}
+  }
+  if (post.createdAtISO) {
+    try { return new Date(post.createdAtISO).toLocaleString(); } catch(e) {}
+  }
+  return '';
+}
 
-  function loadPosts() {
+/* ---------- LocalStorage helpers ---------- */
+function readLocal() {
+  try {
+    const raw = localStorage.getItem(LOCAL_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e){ return []; }
+}
+function saveLocal(posts){
+  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(posts)); } catch(e){}
+}
+
+/* ---------- Firestore detection & init ---------- */
+let firestoreAvailable = false;
+try {
+  if (window.firebase && firebase.apps && firebase.apps.length) {
+    firestoreAvailable = !!(firebase && firebase.firestore);
+  } else {
+    firebase.initializeApp(firebaseConfig);
+    firestoreAvailable = !!(firebase && firebase.firestore);
+  }
+} catch(e){
+  console.warn('Firebase init skipped or failed:', e);
+  firestoreAvailable = !!(window.firebase && firebase.firestore);
+}
+
+const db = firestoreAvailable ? firebase.firestore() : null;
+const coll = db ? db.collection('whispers') : null;
+
+/* ---------- DOM refs ---------- */
+const recipientEl = document.getElementById('recipient');
+const bodyEl = document.getElementById('body-text');
+const moodTitleEl = document.getElementById('mood-title');
+const moodSubEl = document.getElementById('mood-sub');
+const moodIconEl = document.querySelector('#mood-icon .material-symbols-outlined');
+const anonTextEl = document.getElementById('anon-text');
+const dateTextEl = document.getElementById('date-text');
+const likeIcon = document.getElementById('like-icon');
+const likeCountEl = document.getElementById('like-count');
+const sourceNote = document.getElementById('source-note');
+const btnBack = document.getElementById('btn-back');
+const btnLike = document.getElementById('btn-like');
+const btnDelete = document.getElementById('btn-delete');
+
+let current = null;
+let currentSource = 'local'; // 'local' or 'firestore'
+const id = qs('id');
+
+/* ---------- Load and render ---------- */
+async function loadFromLocal(id){
+  const posts = readLocal();
+  return posts.find(p => String(p.id) === String(id)) || null;
+}
+
+async function loadFromFirestore(docId){
+  try {
+    const doc = await coll.doc(docId).get();
+    if (!doc.exists) return null;
+    // Return doc object but keep doc.ref info
+    const data = doc.data();
+    data._firestoreId = doc.id;
+    return { __doc: doc, data };
+  } catch (e) {
+    console.error('Firestore read failed', e);
+    return null;
+  }
+}
+
+function renderLocal(post){
+  current = post;
+  currentSource = 'local';
+  recipientEl.textContent = post.recipient ? `To: ${post.recipient}` : 'To: —';
+  bodyEl.textContent = post.text || '';
+  moodTitleEl.textContent = (post.mood || 'Mood').replace(/^[a-z]/, s => s.toUpperCase());
+  moodSubEl.textContent = post.dateLabel || '';
+  dateTextEl.textContent = formatDateLabel(post) || (post.createdAt ? new Date(post.createdAt).toLocaleString() : '');
+  anonTextEl.textContent = post.anonymous ? 'Sent Anonymously' : (post.name ? `Sent by ${post.name}` : 'Sent');
+  if (post.icon && moodIconEl) moodIconEl.textContent = post.icon;
+  likeCountEl.textContent = String(post.likes || 0);
+  sourceNote.textContent = 'Saved on this device';
+  btnDelete.disabled = false;
+  btnDelete.title = 'Delete (local)';
+}
+
+function renderFirestore(docWrap){
+  const data = docWrap.data;
+  current = data;
+  current._firestoreRef = docWrap.__doc ? docWrap.__doc.ref : null;
+  currentSource = 'firestore';
+  recipientEl.textContent = data.recipient ? `To: ${data.recipient}` : 'To: —';
+  bodyEl.textContent = data.text || '';
+  moodTitleEl.textContent = (data.mood || 'Mood').replace(/^[a-z]/, s => s.toUpperCase());
+  moodSubEl.textContent = data.dateLabel || '';
+  dateTextEl.textContent = formatDateLabel(data);
+  anonTextEl.textContent = data.anonymous ? 'Sent Anonymously' : (data.name ? `Sent by ${data.name}` : 'Sent');
+  if (data.icon && moodIconEl) moodIconEl.textContent = data.icon;
+  likeCountEl.textContent = String(data.likes || 0);
+  sourceNote.textContent = 'Published in the public feed';
+  // Do not allow client-side delete for Firestore posts (safety + likely no rule)
+  btnDelete.disabled = true;
+  btnDelete.title = 'Deletion requires admin (Firebase Console)';
+}
+
+/* ---------- Actions ---------- */
+btnBack.addEventListener('click', () => { history.back(); });
+
+btnLike.addEventListener('click', async () => {
+  if (!current) return;
+  // If Firestore, attempt atomic increment
+  if (firestoreAvailable && currentSource === 'firestore' && current._firestoreRef) {
     try {
-      const raw = localStorage.getItem(KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return [];
-      return parsed;
-    } catch (e) {
-      return [];
-    }
-  }
-
-  function savePosts(posts) {
-    try { localStorage.setItem(KEY, JSON.stringify(posts)); } catch (e) {}
-  }
-
-  function formatDateLabel(post) {
-    if (post.dateLabel) return post.dateLabel;
-    if (post.date) {
-      try { return new Date(post.date).toLocaleString(); } catch (e) {}
-    }
-    return '';
-  }
-
-  (function initDetail() {
-    const id = qs('id');
-    const posts = loadPosts();
-    const post = posts.find(p => String(p.id) === String(id));
-
-    const backBtn = document.getElementById('btn-back');
-    const likeBtn = document.getElementById('btn-like');
-    const deleteBtn = document.getElementById('btn-delete');
-    const likeIcon = document.getElementById('like-icon');
-
-    if (!post) {
-      document.getElementById('recipient').textContent = 'Whisper not found';
-      document.getElementById('body-text').textContent = 'This whisper could not be found. It may have been deleted or the link is incorrect.';
-      document.getElementById('mood-title').textContent = '';
-      document.getElementById('mood-sub').textContent = '';
-      document.getElementById('anon-text').textContent = '';
-      document.getElementById('date-text').textContent = '';
-      backBtn.addEventListener('click', () => history.back());
-      deleteBtn.style.display = 'none';
-      likeBtn.style.display = 'none';
+      await current._firestoreRef.update({ likes: firebase.firestore.FieldValue.increment(1) });
+      // reflect UI (optimistic)
+      const newCount = (Number(likeCountEl.textContent) || 0) + 1;
+      likeCountEl.textContent = String(newCount);
+      likeIcon.textContent = 'favorite';
+      likeIcon.style.color = '#ff7b9c';
       return;
+    } catch (e) {
+      console.warn('Firestore like failed, falling back to local update if possible', e);
+      // continue to fallback
     }
+  }
 
-    // populate UI
-    document.getElementById('recipient').textContent = post.recipient ? `To: ${post.recipient}` : 'To: —';
-    document.getElementById('body-text').textContent = post.text || '';
-    document.getElementById('mood-title').textContent = (post.mood || '').replace(/^[a-z]/, s => s.toUpperCase()) || 'Mood';
-    document.getElementById('mood-sub').textContent = post.ephemeral ? 'Ephemeral' : (post.dateLabel || '');
-    document.getElementById('date-text').textContent = formatDateLabel(post);
-    document.getElementById('anon-text').textContent = post.anonymous ? 'Sent Anonymously' : (post.name ? `Sent by ${post.name}` : 'Sent');
+  // Local fallback: update localStorage
+  try {
+    const posts = readLocal();
+    const idx = posts.findIndex(p => String(p.id) === String(current.id));
+    if (idx !== -1) {
+      posts[idx].likes = (posts[idx].likes || 0) + 1;
+      saveLocal(posts);
+      likeCountEl.textContent = String(posts[idx].likes);
+      likeIcon.textContent = 'favorite';
+      likeIcon.style.color = '#ff7b9c';
+      // also update current object
+      current.likes = posts[idx].likes;
+      return;
+    } else {
+      // If current is firestore but update failed, just update UI locally
+      const newCount = (Number(likeCountEl.textContent) || 0) + 1;
+      likeCountEl.textContent = String(newCount);
+      likeIcon.textContent = 'favorite';
+      likeIcon.style.color = '#ff7b9c';
+    }
+  } catch (e) {
+    console.error('Like failed', e);
+  }
+});
 
-    // mood icon
-    const moodIconEl = document.querySelector('#mood-icon .material-symbols-outlined');
-    if (post.icon && moodIconEl) moodIconEl.textContent = post.icon;
+btnDelete.addEventListener('click', () => {
+  if (!current) return;
+  if (currentSource === 'firestore') {
+    // Safety: don't attempt client-side delete for Firestore — show helpful message
+    if (!confirm('This post lives in the public database and cannot be deleted from this device. Open Firebase Console to remove it as an admin. Open console?')) return;
+    // open Firebase Console (project) in new tab — helpful hint; user must be logged into GCP/Firebase
+    window.open('https://console.firebase.google.com/project/the-words-left-unsent/firestore/data', '_blank');
+    return;
+  }
 
-    // like UI
-    function refreshLikeUI() {
-      if (post.likes && post.likes > 0) {
-        likeIcon.textContent = 'favorite';
-        likeIcon.style.color = '#ff7b9c';
-      } else {
-        likeIcon.textContent = 'favorite_border';
-        likeIcon.style.color = '';
+  // Local deletion
+  if (!confirm('Delete this whisper from this device? This cannot be undone.')) return;
+  const posts = readLocal().filter(p => String(p.id) !== String(current.id));
+  saveLocal(posts);
+  try { const last = localStorage.getItem('unsent_last_added'); if (last && String(last) === String(current.id)) localStorage.removeItem('unsent_last_added'); } catch(e){}
+  // Redirect to list
+  window.location.href = 'whispers.html';
+});
+
+/* ---------- Init logic ---------- */
+(async function init() {
+  if (!id) {
+    recipientEl.textContent = 'Whisper not found';
+    bodyEl.textContent = 'No ID provided.';
+    btnDelete.disabled = true;
+    return;
+  }
+
+  // Try Firestore first (if available)
+  if (firestoreAvailable) {
+    try {
+      const docWrap = await loadFromFirestore(id);
+      if (docWrap) {
+        renderFirestore(docWrap);
+        return;
       }
+    } catch (e) {
+      console.warn('Firestore read error', e);
     }
-    refreshLikeUI();
+  }
 
-    // back
-    backBtn.addEventListener('click', () => history.back());
+  // Fallback: localStorage
+  const localPost = await loadFromLocal(id);
+  if (localPost) {
+    renderLocal(localPost);
+    return;
+  }
 
-    // like action
-    likeBtn.addEventListener('click', () => {
-      const postsNow = loadPosts();
-      const idx = postsNow.findIndex(p => String(p.id) === String(post.id));
-      if (idx === -1) return;
-      postsNow[idx].likes = (postsNow[idx].likes || 0) + 1;
-      post.likes = postsNow[idx].likes;
-      savePosts(postsNow);
-      refreshLikeUI();
-      likeIcon.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 360 });
-    });
-
-    // delete action
-    deleteBtn.addEventListener('click', () => {
-      if (!confirm('Delete this whisper? This action cannot be undone.')) return;
-      const remaining = loadPosts().filter(p => String(p.id) !== String(post.id));
-      savePosts(remaining);
-      try {
-        const last = localStorage.getItem('unsent_last_added');
-        if (last && String(last) === String(post.id)) localStorage.removeItem('unsent_last_added');
-      } catch (e) {}
-      window.location.href = 'whispers.html';
-    });
-  })();
+  // not found
+  recipientEl.textContent = 'Whisper not found';
+  bodyEl.textContent = 'This whisper could not be found. It may have been deleted or the link is incorrect.';
+  moodTitleEl.textContent = '';
+  moodSubEl.textContent = '';
+  anonTextEl.textContent = '';
+  dateTextEl.textContent = '';
+  btnLike.disabled = true;
+  btnDelete.disabled = true;
+})();
 </script>
 </body>
 </html>
