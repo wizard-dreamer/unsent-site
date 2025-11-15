@@ -1,4 +1,4 @@
-﻿#thewordsleftunsent
+﻿# thewordsleftunsent
 
 A small, anonymous confessional web app — whisper what you can’t say aloud. Mobile-first UI, simple Firestore integration (with localStorage fallback), and ready to deploy to Vercel.
 
@@ -33,5 +33,6 @@ LocalStorage fallback for development/testing without a backend.
 Client-side search (recipient/text).
 
 Friendly UX: large tap targets, previews, autosize textareas, keyboard shortcuts.
+
 
 
